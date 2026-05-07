@@ -223,7 +223,7 @@ def menu():
     while True:
         print("""
 ===== MENU KAMAR =====
-1. Tambahinnnnnnnnnnnnn Kamar
+1. Tambah Kamar
 2. Lihat Kamar
 3. Update Kamar
 4. Hapus Kamar
