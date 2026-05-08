@@ -5,11 +5,12 @@ FILE_NAME = "kamar.csv"
 # ================= DATA GLOBAL =================
 data = []
 history_stack = []
-
+log_aktivitas= []
 
 # ================= FILE HANDLING =================
 
 def load_data():
+    temp_data = [] # variabel lokal dulu
     data = []
 
     try:
@@ -27,8 +28,8 @@ def load_data():
 
 def save_data(data):
     with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:
-        fieldnames = ["id", "nomor", "lantai", "harga", "status", "penghuni"]
-
+        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni"]
+        # Update hapus id dari fieldnames biar ga muncul di CSV
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
@@ -99,14 +100,37 @@ class SingleLinkedList:
             temp = temp.next
 
         print("NULL")
+        
+# ================= NEW FITUR (SEARCH & HISTORY) ====================
 
+#--- Search ---
+def cari_kamar():
+    global data
+    keyword = input("Masukkan nomor kamar atau nama penghuni yang ingin dicari: ").lower()
+    ketemu = False
+    
+    print("\n --- Hasil Pencarian ---")
+    for kamar in data:
+        if keyword in kamar['nomor'].lower() or keyword in kamar['penghuni'].lower():
+            print(f"Nomor: {kamar['nomor']} | Status: {kamar['status']} | Penghuni: {kamar['penghuni']}")
+            ketemu = True
+            
+    if not ketemu:
+        print('Data yang kamu cari tidak ditemukan')
+        
+#--- History ----
+def lihat_history():
+    print("\n==== RIWAYAT AKTIVITAS ====")
+    if not log_aktivitas:
+        print("Belum ada riwayat aktivitas")
+    else:
+        for i, log in enumerate(log_aktivitas, 1):
+            print(f"{i}.{log}")
 
 # ================= CRUD =================
 
 def tambah_kamar(sll):
     global data
-
-    id = input("ID: ")
     nomor = input("Nomor kamar: ")
     lantai = input("Lantai: ")
     harga = input("Harga: ")
@@ -114,7 +138,6 @@ def tambah_kamar(sll):
     penghuni = input("Penghuni: ")
 
     kamar = {
-        "id": id,
         "nomor": nomor,
         "lantai": lantai,
         "harga": harga,
@@ -122,9 +145,10 @@ def tambah_kamar(sll):
         "penghuni": penghuni
     }
 
-    history_stack.append(data.copy())
+    history_stack.append([d.copy() for d in data]) #Simpen state data sebelum ditambah (buat undo)
 
     data.append(kamar)
+    log_aktivitas.append(f"Menambahkan kamar nomor {nomor}")
     save_data(data)
     sll.tambah_kamar(kamar)
 
@@ -142,7 +166,6 @@ def lihat_kamar():
 
     for kamar in data:
         print(f"""
-ID       : {kamar['id']}
 Nomor    : {kamar['nomor']}
 Lantai   : {kamar['lantai']}
 Harga    : {kamar['harga']}
@@ -155,13 +178,17 @@ Penghuni : {kamar['penghuni']}
 def update_kamar(sll):
     global data
 
-    id_kamar = input("Masukkan ID kamar: ")
+    nomor_cari = input("Masukkan Nomor kamar yang mau diupdate: ")
 
     for kamar in data:
-        if kamar["id"] == id_kamar:
-            history_stack.append(data.copy())
+        if kamar["nomor"] == nomor_cari:
+            history_stack.append([d.copy() for d in data])
+            
+            penghuni_baru = input("Nama penghuni baru: ")
+            log_aktivitas.append(f"Update kamar {nomor_cari}: {kamar['penghuni']} -> {penghuni_baru}")
 
-            kamar["penghuni"] = input("Nama penghuni baru: ")
+            #Perbaikan: Langsung masukin variabel penghuni baru
+            kamar["penghuni"] = penghuni_baru
             kamar["status"] = "Terisi"
 
             save_data(data)
@@ -170,18 +197,19 @@ def update_kamar(sll):
             print("Data berhasil diupdate!")
             return
 
-    print("ID tidak ditemukan!")
+    print("Nomor kamar tidak ditemukan!")
 
 
 def hapus_kamar(sll):
     global data
 
-    id_kamar = input("Masukkan ID kamar: ")
+    nomor_cari = input("Masukkan Nomor kamar yang dihapus: ")
 
     for kamar in data:
-        if kamar["id"] == id_kamar:
-            history_stack.append(data.copy())
+        if kamar["nomor"] == nomor_cari:
+            history_stack.append([d.copy() for d in data])
 
+            log_aktivitas.append(f"Menghapus kamar nomor {nomor_cari}")
             data.remove(kamar)
 
             save_data(data)
@@ -190,7 +218,7 @@ def hapus_kamar(sll):
             print("Data berhasil dihapus!")
             return
 
-    print("ID tidak ditemukan!")
+    print("Nomor kamar tidak ditemukan!")
 
 
 # ================= STACK UNDO =================
@@ -199,15 +227,16 @@ def undo(sll):
     global data
 
     if history_stack:
+        #Perbaikan: pop data terakhir dari stack
         data = history_stack.pop()
-
+        log_aktivitas.append("Melakukan Undo")
         save_data(data)
         sll.rebuild(data)
 
         print("Undo berhasil!")
 
     else:
-        print("Tidak ada riwayat.")
+        print("Tidak ada riwayat untuk undo.")
 
 
 # ================= MENU =================
@@ -224,10 +253,12 @@ def menu():
         print("""
 ===== MENU KAMAR =====
 1. Tambah Kamar
-2. Lihat Kamar
-3. Update Kamar
-4. Hapus Kamar
-5. Undo
+2. Lihat Semua Kamar
+3. Cari Kamar (No/Nama)
+4. Update Kamar (By Nomor)
+5. Hapus Kamar (By Nomor)
+6. Lihat Riwayat (Log)
+7. Undo
 0. Keluar
 """)
 
@@ -238,17 +269,21 @@ def menu():
 
         elif pilih == "2":
             lihat_kamar()
-
+        
         elif pilih == "3":
-            update_kamar(sll)
+            cari_kamar()
 
         elif pilih == "4":
-            hapus_kamar(sll)
+            update_kamar(sll)
 
         elif pilih == "5":
-            undo(sll)
+            hapus_kamar(sll)
 
-    
+        elif pilih == "6":
+            lihat_history()
+            
+        elif pilih == "7":
+            undo(sll)
 
         elif pilih == "0":
             print("Program selesai.")
@@ -259,5 +294,5 @@ def menu():
 
 
 # ================= RUN =================
-
-menu()
+if __name__ == "__main__":
+    menu()
