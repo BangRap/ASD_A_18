@@ -1,4 +1,5 @@
 import csv
+import tabulate
 
 FILE_NAME = "kamar.csv"
 
@@ -162,17 +163,17 @@ def lihat_kamar():
         print("Data kosong")
         return
 
-    print("\n===== DATA KAMAR =====")
+    print("\n===================== DATA KAMAR ======================")
 
-    for kamar in data:
-        print(f"""
-Nomor    : {kamar['nomor']}
-Lantai   : {kamar['lantai']}
-Harga    : {kamar['harga']}
-Status   : {kamar['status']}
-Penghuni : {kamar['penghuni']}
-------------------------
-""")
+    headers = {
+        "nomor": "\033[1mNomor\033[0m",
+        "lantai": "\033[1mLantai\033[0m",
+        "harga": "\033[1mHarga\033[0m",
+        "status": "\033[1mStatus\033[0m",
+        "penghuni": "\033[1mPenghuni\033[0m"
+    }
+
+    print(tabulate.tabulate(data, headers=headers, tablefmt="rounded_grid"))
 
 
 def update_kamar(sll):
@@ -254,10 +255,10 @@ def menu():
 ===== MENU KAMAR =====
 1. Tambah Kamar
 2. Lihat Semua Kamar
-3. Cari Kamar (No/Nama)
-4. Update Kamar (By Nomor)
-5. Hapus Kamar (By Nomor)
-6. Lihat Riwayat (Log)
+3. Cari Kamar (No/Penghuni)
+4. Update Kamar (Nomor)
+5. Hapus Kamar (Nomor)
+6. Lihat Riwayat
 7. Undo
 0. Keluar
 """)
