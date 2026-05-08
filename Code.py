@@ -108,16 +108,24 @@ class SingleLinkedList:
 def cari_kamar():
     global data
     keyword = input("Masukkan nomor kamar atau nama penghuni yang ingin dicari: ").lower()
-    ketemu = False
     
-    print("\n --- Hasil Pencarian ---")
+    hasil = []
     for kamar in data:
         if keyword in kamar['nomor'].lower() or keyword in kamar['penghuni'].lower():
-            print(f"Nomor: {kamar['nomor']} | Status: {kamar['status']} | Penghuni: {kamar['penghuni']}")
-            ketemu = True
-            
-    if not ketemu:
-        print('Data yang kamu cari tidak ditemukan')
+            hasil.append(kamar)
+    
+    print("\n=================== Hasil Pencarian ===================")
+    if not hasil:
+        print("Data yang kamu cari tidak ditemukan")
+    else:
+        headers = {
+            "nomor": "\033[1mNomor\033[0m",
+            "lantai": "\033[1mLantai\033[0m",
+            "harga": "\033[1mHarga\033[0m",
+            "status": "\033[1mStatus\033[0m",
+            "penghuni": "\033[1mPenghuni\033[0m"
+        }
+        print(tabulate.tabulate(hasil, headers=headers, tablefmt="rounded_grid"))
         
 #--- History ----
 def lihat_history():
