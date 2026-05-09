@@ -260,7 +260,7 @@ def menu():
 
     while True:
         print("""
-===== MENU KAMAR =====
+===== MENU APLIKASI =====
 1. Tambah Kamar
 2. Lihat Semua Kamar
 3. Cari Kamar (No/Penghuni)
