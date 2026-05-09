@@ -171,8 +171,6 @@ def lihat_kamar():
         print("Data kosong")
         return
 
-    print("\n===================== DATA KAMAR ======================")
-
     headers = {
         "nomor": "\033[1mNomor\033[0m",
         "lantai": "\033[1mLantai\033[0m",
@@ -181,8 +179,48 @@ def lihat_kamar():
         "penghuni": "\033[1mPenghuni\033[0m"
     }
 
-    print(tabulate.tabulate(data, headers=headers, tablefmt="rounded_grid"))
+    pilihan = input("Lihat semua kamar atau berdasarkan filter? (semua/filter): ").lower()
 
+    if pilihan == "semua":
+        tampil = data
+
+    elif pilihan == "filter":
+        print("""
+Filter berdasarkan:
+1. Lantai
+2. Harga
+3. Status
+""")
+        jenis_filter = input("Pilih filter (1/2/3): ")
+
+        tampil = []
+
+        if jenis_filter == "1":
+            lantai = input("Masukkan lantai (1/2): ")
+            tampil = [k for k in data if k["lantai"] == lantai]
+
+        elif jenis_filter == "2":
+            harga = input("Masukkan harga yang dicari: ")
+            tampil = [k for k in data if k["harga"] == harga]
+
+        elif jenis_filter == "3":
+            status = input("Masukkan status (Terisi/Kosong): ").capitalize()
+            tampil = [k for k in data if k["status"].lower() == status.lower()]
+
+        else:
+            print("Pilihan filter tidak valid!")
+            return
+
+        if not tampil:
+            print("Tidak ada kamar yang dicari.")
+            return
+
+    else:
+        print("Pilihan tidak valid!")
+        return
+
+    print("\n===================== DATA KAMAR ======================")
+    print(tabulate.tabulate(tampil, headers=headers, tablefmt="rounded_grid"))
 
 def update_kamar(sll):
     global data
