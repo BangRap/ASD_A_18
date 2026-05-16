@@ -158,6 +158,15 @@ def lihat_history():
 def tambah_kamar(sll):
     global data
     nomor = input("Nomor kamar: ")
+    
+# ============= Validasi Nomer ===========
+    temp = sll.head # Mulai pengecekam dari head linked list
+    while temp is not None:
+        if temp.data["nomor"] == nomor:
+            print(f"\n Error: Kamar nomor {nomor} sudah ada! Silahkan input nomor kamar yang lain.")
+            return # disini langsung keluar dari fungsi, tidak jadi menambahkan data kamar karna sudah terinput
+        temp = temp.next # geser ke node berikutnya
+# ==========================================================
     lantai = input("Lantai: ")
     harga = input("Harga: ")
     status = input("Status: ")
