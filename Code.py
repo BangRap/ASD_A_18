@@ -72,47 +72,64 @@ class SingleLinkedList:
 
     def tambah_kamar(self, kamar):
         new_node = Node(kamar)
-
         if not self.head:
             self.head = new_node
             return
-
         temp = self.head
         while temp.next:
             temp = temp.next
-
         temp.next = new_node
 
     def rebuild(self, data):
         self.head = None
-
         for kamar in data:
             self.tambah_kamar(kamar)
 
-    def display(self):
+    # --- FITUR BARU: Konversi SLL ke List (Untuk Save ke CSV) ---
+    def to_list(self):
+        hasil_list = []
         temp = self.head
-
-        if not temp:
-            print("Linked List kosong")
-            return
-
         while temp:
-            print(temp.data, end=" -> ")
+            hasil_list.append(temp.data)
+            temp = temp.next
+        return hasil_list
+
+    # --- FITUR BARU: Hapus Node Asli SLL ---
+    def hapus_node_by_nomor(self, nomor_cari):
+        temp = self.head
+        prev = None
+
+        # Jika yang dihapus adalah node pertama (head)
+        if temp is not None and temp.data["nomor"] == nomor_cari:
+            self.head = temp.next # Putus rantai head
+            return True
+
+        # Cari node di tengah/akhir
+        while temp is not None and temp.data["nomor"] != nomor_cari:
+            prev = temp
             temp = temp.next
 
-        print("NULL")
+        # Jika ketemu, putus rantainya dari node sebelumnya
+        if temp is not None:
+            prev.next = temp.next
+            return True
+            
+        return False # Jika tidak ketemu
         
 # ================= NEW FITUR (SEARCH & HISTORY) ====================
 
 #--- Search ---
-def cari_kamar():
-    global data
+def cari_kamar(sll): # <-- Ingat ada tambahan parameter 'sll' di sini
     keyword = input("Masukkan nomor kamar atau nama penghuni yang ingin dicari: ").lower()
     
     hasil = []
-    for kamar in data:
-        if keyword in kamar['nomor'].lower() or keyword in kamar['penghuni'].lower():
-            hasil.append(kamar)
+    temp = sll.head # Mulai penelusuran dari Kepala (Head) Linked List
+    
+    # Looping ala Linked List Sejati
+    while temp is not None:
+        if keyword in temp.data['nomor'].lower() or keyword in temp.data['penghuni'].lower():
+            hasil.append(temp.data)
+        temp = temp.next # Jalan ke node berikutnya
     
     print("\n=================== Hasil Pencarian ===================")
     if not hasil:
@@ -249,23 +266,27 @@ def update_kamar(sll):
 
 def hapus_kamar(sll):
     global data
-
     nomor_cari = input("Masukkan Nomor kamar yang dihapus: ")
 
-    for kamar in data:
-        if kamar["nomor"] == nomor_cari:
-            history_stack.append([d.copy() for d in data])
+    # 1. Simpan riwayat untuk Undo (WAJIB sebelum diubah)
+    history_stack.append([d.copy() for d in data])
 
-            log_aktivitas.append(f"Menghapus kamar nomor {nomor_cari}")
-            data.remove(kamar)
+    # 2. Lakukan penghapusan murni menggunakan Linked List
+    berhasil_hapus = sll.hapus_node_by_nomor(nomor_cari)
 
-            save_data(data)
-            sll.rebuild(data)
-
-            print("Data berhasil dihapus!")
-            return
-
-    print("Nomor kamar tidak ditemukan!")
+    if berhasil_hapus:
+        log_aktivitas.append(f"Menghapus kamar nomor {nomor_cari}")
+        
+        # 3. Sinkronkan global data dengan kondisi SLL yang baru
+        data = sll.to_list() 
+        
+        # 4. Save ke CSV
+        save_data(data)
+        print("Data berhasil dihapus dari Linked List!")
+    else:
+        # Jika tidak ketemu, batalkan undo yang tadi disimpan
+        history_stack.pop() 
+        print("Nomor kamar tidak ditemukan!")
 
 
 # ================= STACK UNDO =================
@@ -318,7 +339,7 @@ def menu():
             lihat_kamar()
         
         elif pilih == "3":
-            cari_kamar()
+            cari_kamar(sll)
 
         elif pilih == "4":
             update_kamar(sll)
