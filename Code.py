@@ -244,22 +244,29 @@ def update_kamar(sll):
 
     nomor_cari = input("Masukkan Nomor kamar yang mau diupdate: ")
 
-    for kamar in data:
-        if kamar["nomor"] == nomor_cari:
+    # 1. Mulai penelusuran dari Head SLL
+    temp = sll.head
+    
+    while temp is not None:
+        if temp.data["nomor"] == nomor_cari:
+            # Simpan state lama ke stack sebelum data diubah (untuk Undo)
             history_stack.append([d.copy() for d in data])
             
             penghuni_baru = input("Nama penghuni baru: ")
-            log_aktivitas.append(f"Update kamar {nomor_cari}: {kamar['penghuni']} -> {penghuni_baru}")
+            log_aktivitas.append(f"Update kamar {nomor_cari}: {temp.data['penghuni']} -> {penghuni_baru}")
 
-            #Perbaikan: Langsung masukin variabel penghuni baru
-            kamar["penghuni"] = penghuni_baru
-            kamar["status"] = "Terisi"
+            # 2. Ubah data langsung di dalam Node SLL
+            temp.data["penghuni"] = penghuni_baru
+            temp.data["status"] = "Terisi"
 
+            # 3. Sinkronkan ke list global dan simpan ke CSV
+            data = sll.to_list()
             save_data(data)
-            sll.rebuild(data)
 
-            print("Data berhasil diupdate!")
+            print("Data berhasil diupdate langsung di Linked List!")
             return
+        
+        temp = temp.next # Pindah ke kamar berikutnya
 
     print("Nomor kamar tidak ditemukan!")
 
