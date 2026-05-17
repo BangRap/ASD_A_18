@@ -109,23 +109,43 @@ class SingleLinkedList:
             prev = temp
             temp = temp.next
 
-        # Jika ketemu, putus rantainya dari node sebelumnya
+# Jika ketemu, putus rantainya dari node sebelumnya
         if temp is not None:
             prev.next = temp.next
             return True
             
         return False # Jika tidak ketemu
+
+    # --- FITUR BARU: BUBBLE SORT PADA LINKED LIST ---
+    def urutkan_kamar(self):
+        if not self.head or not self.head.next:
+            return # SLL kosong atau cuma 1 data, gak perlu disort
+
+        diurutkan = True
+        while diurutkan:
+            diurutkan = False
+            temp = self.head
+            
+            # Telusuri SLL sampai node sebelum terakhir
+            while temp.next is not None:
+                # Ubah nomor kamar ke integer saat membandingkan agar urutannya matematis (misal: 2 sebelum 10)
+                if int(temp.data["nomor"]) > int(temp.next.data["nomor"]):
+                    # Tukar ISI DATA antar node jika node depan lebih besar dari node belakang
+                    temp.data, temp.next.data = temp.next.data, temp.data
+                    diurutkan = True
+                
+                temp = temp.next # Geser pointer ke node berikutnya
         
 # ================= NEW FITUR (SEARCH & HISTORY) ====================
 
 #--- Search ---
-def cari_kamar(sll): # <-- Ingat ada tambahan parameter 'sll' di sini
+def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
     keyword = input("Masukkan nomor kamar atau nama penghuni yang ingin dicari: ").lower()
     
     hasil = []
     temp = sll.head # Mulai penelusuran dari Kepala (Head) Linked List
     
-    # Looping ala Linked List Sejati
+    # Looping ala Linked List
     while temp is not None:
         if keyword in temp.data['nomor'].lower() or keyword in temp.data['penghuni'].lower():
             hasil.append(temp.data)
@@ -153,7 +173,41 @@ def lihat_history():
         for i, log in enumerate(log_aktivitas, 1):
             print(f"{i}.{log}")
 
+
 # ================= CRUD =================
+
+def sort_kamar(sll):
+    global data
+    
+    if not sll.head:
+        print("\n❌ Data kosong, tidak ada yang bisa diurutkan!")
+        return
+
+    print("\nSedang mengurutkan kamar berdasarkan nomor...")
+    
+    # 1. Jalankan algoritma Bubble Sort di dalam SLL
+    sll.urutkan_kamar()
+    
+    # 2. Sinkronkan ke list global setelah diurutkan
+    data = sll.to_list()
+    
+    # 3. Simpan urutan terbaru ke file CSV
+    save_data(data)
+    log_aktivitas.append("Mengurutkan daftar kamar berdasarkan nomor")
+    
+    print("✅ Kamar berhasil diurutkan dari nomor terkecil ke terbesar!")
+    
+    # 4. Langsung tampilkan hasilnya ke user biar keren
+    headers = {
+        "nomor": "\033[1mNomor\033[0m",
+        "lantai": "\033[1mLantai\033[0m",
+        "harga": "\033[1mHarga\033[0m",
+        "status": "\033[1mStatus\033[0m",
+        "penghuni": "\033[1mPenghuni\033[0m"
+    }
+    print("\n===================== DATA KAMAR (TERURUT) ======================")
+    print(tabulate.tabulate(data, headers=headers, tablefmt="rounded_grid"))
+
 
 def tambah_kamar(sll):
     global data
@@ -343,6 +397,7 @@ def menu():
 5. Hapus Kamar (Nomor)
 6. Lihat Riwayat
 7. Undo
+8. Urutkan Kamar (Bubble Sort)
 0. Keluar
 """)
 
@@ -368,6 +423,9 @@ def menu():
             
         elif pilih == "7":
             undo(sll)
+            
+        elif pilih == "8":
+            sort_kamar(sll)
 
         elif pilih == "0":
             print("Program selesai.")
