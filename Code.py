@@ -1,5 +1,8 @@
 import csv
 import tabulate
+import os
+import datetime
+import requests
 
 FILE_NAME = "kamar.csv"
 
@@ -40,7 +43,7 @@ def save_data(data):
     '''
 
     with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:    # Membuka file kamar.csv dalam mode write/tulis, Jika file belum ada, maka akan dibuat otomatis, Jika sudah ada, isi lama akan ditimpa dengan data terbaru
-        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni"] # Menentukan nama kolom yang akan dipakai di file CSV
+        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni", "tanggal_mulai"] # Menentukan nama kolom yang akan dipakai di file CSV
         writer = csv.DictWriter(file, fieldnames=fieldnames)  # Membuat writer CSV berbasis dictionary
         writer.writeheader()  # menulis header kolom di baris pertama CSV
         writer.writerows(data) # menulis seluruh data list kamar ke file CSV
@@ -193,7 +196,8 @@ def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
             "lantai": "\033[1mLantai\033[0m",
             "harga": "\033[1mHarga\033[0m",
             "status": "\033[1mStatus\033[0m",
-            "penghuni": "\033[1mPenghuni\033[0m"
+            "penghuni": "\033[1mPenghuni\033[0m",
+            "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
         }
         print(tabulate.tabulate(hasil, headers=headers, tablefmt="rounded_grid")) #disini buat ngerapihin dan membuat jadi tabel
         
@@ -241,7 +245,8 @@ def sort_kamar(sll):
         "lantai": "\033[1mLantai\033[0m",
         "harga": "\033[1mHarga\033[0m",
         "status": "\033[1mStatus\033[0m",
-        "penghuni": "\033[1mPenghuni\033[0m"
+        "penghuni": "\033[1mPenghuni\033[0m",
+        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
     }
     print("\n===================== DATA KAMAR (TERURUT) ======================")
     print(tabulate.tabulate(data, headers=headers, tablefmt="rounded_grid"))
@@ -267,12 +272,16 @@ def tambah_kamar(sll):
     status = input("Status: ")
     penghuni = input("Penghuni: ")
 
+    # Tanggal mulai diisi otomatis dari datetime saat data diinput, bukan dari user
+    tanggal_mulai = datetime.datetime.now().strftime("%Y-%m-%d")
+
     kamar = {
         "nomor": nomor,
         "lantai": lantai,
         "harga": harga,
         "status": status,
-        "penghuni": penghuni
+        "penghuni": penghuni,
+        "tanggal_mulai": tanggal_mulai
     }
 
     history_stack.append([d.copy() for d in data]) #Simpen state data sebelum ditambah (buat undo)
@@ -282,7 +291,7 @@ def tambah_kamar(sll):
     save_data(data)
     sll.tambah_kamar(kamar)
 
-    print("Kamar berhasil ditambahkan!")
+    print(f"Kamar berhasil ditambahkan! (Tanggal mulai: {tanggal_mulai})")
 
 
 def lihat_kamar():
@@ -301,7 +310,8 @@ def lihat_kamar():
         "lantai": "\033[1mLantai\033[0m",
         "harga": "\033[1mHarga\033[0m",
         "status": "\033[1mStatus\033[0m",
-        "penghuni": "\033[1mPenghuni\033[0m"
+        "penghuni": "\033[1mPenghuni\033[0m",
+        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
     }
 
     pilihan = input("Lihat semua kamar atau berdasarkan filter? (semua/filter): ").lower()
