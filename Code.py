@@ -12,6 +12,10 @@ log_aktivitas= []    # List untuk menyimpan catatan aktivitas user selama progra
 # ================= FILE HANDLING =================
 
 def load_data():
+    '''
+    Ini fungsi buat ngeload data
+    '''
+    
     data = []   # Membuat list kosong untuk menampung data dari file CSV
 
     try: # Mencoba membuka file CSV
@@ -30,7 +34,10 @@ def load_data():
     return data  # Mengembalikan data dari CSV ke program
 
 
-def save_data(data): # Fungsi untuk menyimpan data dari list ke file CSV
+def save_data(data):
+    '''
+    Ini fungsi buat ngesave data
+    '''
 
     with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:    # Membuka file kamar.csv dalam mode write/tulis, Jika file belum ada, maka akan dibuat otomatis, Jika sudah ada, isi lama akan ditimpa dengan data terbaru
         fieldnames = ["nomor", "lantai", "harga", "status", "penghuni"] # Menentukan nama kolom yang akan dipakai di file CSV
@@ -39,7 +46,10 @@ def save_data(data): # Fungsi untuk menyimpan data dari list ke file CSV
         writer.writerows(data) # menulis seluruh data list kamar ke file CSV
 
 
-def import_csv(sll):   # Fungsi untuk mengimpor data dari file CSV lain
+def import_csv(sll): 
+    '''
+    Ini fungsi buat import csv
+    '''
 
     global data  # Menggunakan variabel data global agar data utama bisa diganti
     nama_file = input("Masukkan nama file CSV: ")   # User memasukkan nama file CSV yang ingin diimpor
@@ -72,7 +82,11 @@ class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
     def __init__(self): 
         self.head = None  # Head adalah node pertama dalam linked list, awalnya None karena linked list masih kosong
 
-    def tambah_kamar(self, kamar):    # Method untuk menambahkan data kamar ke linked list
+    def tambah_kamar(self, kamar):
+        '''
+        Ini fungsi buat masukin kamar ke linkedlist
+        '''
+        
         new_node = Node(kamar)        # Membuat node baru berisi data kamar
         if not self.head:             # Jika linked list masih kosong
             self.head = new_node      # Node baru langsung menjadi head
@@ -82,13 +96,21 @@ class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
             temp = temp.next          # Geser temp ke node berikutnya
         temp.next = new_node          # Setelah sampai node terakhir, sambungkan node baru di bagian akhir
 
-    def rebuild(self, data):    # Method untuk membangun ulang linked list dari list data
+    def rebuild(self, data):
+        '''
+        Fungsi buat ngebangun ulang linked list dari list data
+        '''
+        
         self.head = None   # Mengosongkan linked list terlebih dahulu
         for kamar in data:  # Loop semua data kamar dari list
             self.tambah_kamar(kamar)   # Masukkan satu per satu ke linked list
 
     # --- FITUR BARU: Konversi SLL ke List (Untuk Save ke CSV) ---
-    def to_list(self):   # Method untuk mengubah linked list kembali menjadi list biasa
+    def to_list(self):   
+        '''
+        Fungsi buat ngubah linked list ke list biasa
+        '''
+        
         hasil_list = []   # List kosong untuk menampung hasil konversi
         temp = self.head   # Mulai dari node pertama
         while temp:   # Selama node masih ada
@@ -97,7 +119,11 @@ class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
         return hasil_list  # Mengembalikan hasil linked list dalam bentuk list
 
     # --- FITUR BARU: Hapus Node Asli SLL ---
-    def hapus_node_by_nomor(self, nomor_cari):   # Method untuk menghapus node berdasarkan nomor kamar
+    def hapus_node_by_nomor(self, nomor_cari):   
+        '''
+        untuk ngehapus node berdasarkan nomor kamar
+        '''
+        
         temp = self.head # Mulai dari node pertama
         prev = None  # prev digunakan untuk menyimpan node sebelumnya
 
@@ -117,7 +143,11 @@ class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
         return False # Jika tidak ketemu, kembalikan False
 
     # --- FITUR BARU: BUBBLE SORT PADA LINKED LIST ---
-    def urutkan_kamar(self):  # Method untuk mengurutkan kamar memakai Bubble Sort pada linked list
+    def urutkan_kamar(self): 
+        '''
+        fungsi buat mengurutkan kamar memakai Bubble Sort pada linked list
+        '''
+        
         if not self.head or not self.head.next: # Jika linked list kosong atau cuma punya satu node
             return # Tidak perlu sorting
 
@@ -139,6 +169,10 @@ class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
 
 #--- Search ---
 def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
+    '''
+    fungsi buat cari kamar
+    '''
+    
     keyword = input("Masukkan nomor kamar atau nama penghuni yang ingin dicari: ").lower()
     
     hasil = []
@@ -165,6 +199,10 @@ def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
         
 #--- History ----
 def lihat_history():
+    '''
+    fungsi buat ngelihat history ngedit data
+    '''
+    
     print("\n==== RIWAYAT AKTIVITAS ====")
     if not log_aktivitas: #buat Kalo aktivitasnya kosong
         print("Belum ada riwayat aktivitas")
@@ -176,6 +214,9 @@ def lihat_history():
 # ================= CRUD =================
 
 def sort_kamar(sll):
+    '''
+    fungsi buat mengurutkan data kamar kost
+    '''
     global data
     
     if not sll.head: #Buat ngecek linkedlistnya kosong apa engga
@@ -207,6 +248,9 @@ def sort_kamar(sll):
 
 
 def tambah_kamar(sll):
+    '''
+    fungsi buat nambah kamar
+    '''
     global data
     nomor = input("Nomor kamar: ")
     
@@ -242,6 +286,10 @@ def tambah_kamar(sll):
 
 
 def lihat_kamar():
+    '''
+    fungsi buat lihat data kamar kost
+    '''
+    
     global data
 
     if not data: #Ngecek data kosong apa engga
@@ -258,6 +306,7 @@ def lihat_kamar():
 
     pilihan = input("Lihat semua kamar atau berdasarkan filter? (semua/filter): ").lower()
 
+    # ini if else buat milih lihat semua kamar atau ngefilter
     if pilihan == "semua":
         tampil = data
 
@@ -301,6 +350,9 @@ Filter berdasarkan:
     print(tabulate.tabulate(tampil, headers=headers, tablefmt="rounded_grid"))
 
 def update_kamar(sll):
+    '''
+    fungsi buat ngeupdate data kamar kost
+    '''
     global data
 
     nomor_cari = input("Masukkan Nomor kamar yang mau diupdate: ")
@@ -332,6 +384,10 @@ def update_kamar(sll):
 
 
 def hapus_kamar(sll):
+    '''
+    fungsi buat ngehapus data kamar kost
+    '''
+    
     global data
     nomor_cari = input("Masukkan Nomor kamar yang dihapus: ")
 
@@ -359,6 +415,10 @@ def hapus_kamar(sll):
 # ================= STACK UNDO =================
 
 def undo(sll):
+    '''
+    fungsi buat ngeundo perubahan data
+    '''
+    
     global data
 
     if history_stack:
@@ -377,6 +437,10 @@ def undo(sll):
 # ================= MENU =================
 
 def menu():
+    '''
+    fungsi output menu program
+    '''
+    
     global data
 
     data = load_data()
