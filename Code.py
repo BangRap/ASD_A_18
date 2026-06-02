@@ -43,7 +43,7 @@ def save_data(data):
     '''
 
     with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:    # Membuka file kamar.csv dalam mode write/tulis, Jika file belum ada, maka akan dibuat otomatis, Jika sudah ada, isi lama akan ditimpa dengan data terbaru
-        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni", "tanggal_mulai"] # Menentukan nama kolom yang akan dipakai di file CSV
+        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni", "tanggal_mulai", "tagihan"] # Menentukan nama kolom yang akan dipakai di file CSV
         writer = csv.DictWriter(file, fieldnames=fieldnames)  # Membuat writer CSV berbasis dictionary
         writer.writeheader()  # menulis header kolom di baris pertama CSV
         writer.writerows(data) # menulis seluruh data list kamar ke file CSV
@@ -197,7 +197,8 @@ def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
             "harga": "\033[1mHarga\033[0m",
             "status": "\033[1mStatus\033[0m",
             "penghuni": "\033[1mPenghuni\033[0m",
-            "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
+            "tanggal_mulai": "\033[1mTanggal Mulai\033[0m",
+            "tagihan": "\033[1mTagihan (Rp)\033[0m"
         }
         print(tabulate.tabulate(hasil, headers=headers, tablefmt="rounded_grid")) #disini buat ngerapihin dan membuat jadi tabel
         
@@ -246,7 +247,8 @@ def sort_kamar(sll):
         "harga": "\033[1mHarga\033[0m",
         "status": "\033[1mStatus\033[0m",
         "penghuni": "\033[1mPenghuni\033[0m",
-        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
+        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m",
+        "tagihan": "\033[1mTagihan (Rp)\033[0m"
     }
     print("\n===================== DATA KAMAR (TERURUT) ======================")
     print(tabulate.tabulate(data, headers=headers, tablefmt="rounded_grid"))
@@ -269,11 +271,28 @@ def tambah_kamar(sll):
 # ==========================================================
     lantai = input("Lantai: ")
     harga = input("Harga: ")
-    status = input("Status: ")
-    penghuni = input("Penghuni: ")
+    status = input("Status (Terisi/Kosong): ").capitalize()
 
-    # Tanggal mulai diisi otomatis dari datetime saat data diinput, bukan dari user
-    tanggal_mulai = datetime.datetime.now().strftime("%Y-%m-%d")
+    if status.lower() == "kosong":
+        # Jika kamar kosong, skip penghuni, tanggal_mulai, dan tagihan
+        penghuni = ""
+        tanggal_mulai = ""
+        tagihan = ""
+        print("Status Kosong: penghuni, tanggal mulai, dan tagihan dikosongkan otomatis.")
+    else:
+        penghuni = input("Penghuni: ")
+
+        # Validasi input tagihan: harus berupa angka
+        while True:
+            tagihan_input = input("Tagihan pembayaran (Rp): ")
+            if tagihan_input.isdigit():
+                tagihan = tagihan_input
+                break
+            else:
+                print(" Error: Tagihan harus berupa angka! Coba lagi.")
+
+        # Tanggal mulai diisi otomatis dari datetime saat data diinput, bukan dari user
+        tanggal_mulai = datetime.datetime.now().strftime("%Y-%m-%d ")
 
     kamar = {
         "nomor": nomor,
@@ -281,7 +300,8 @@ def tambah_kamar(sll):
         "harga": harga,
         "status": status,
         "penghuni": penghuni,
-        "tanggal_mulai": tanggal_mulai
+        "tanggal_mulai": tanggal_mulai,
+        "tagihan": tagihan
     }
 
     history_stack.append([d.copy() for d in data]) #Simpen state data sebelum ditambah (buat undo)
@@ -291,7 +311,10 @@ def tambah_kamar(sll):
     save_data(data)
     sll.tambah_kamar(kamar)
 
-    print(f"Kamar berhasil ditambahkan! (Tanggal mulai: {tanggal_mulai})")
+    if tanggal_mulai:
+        print(f"Kamar berhasil ditambahkan! (Tanggal mulai: {tanggal_mulai})")
+    else:
+        print("Kamar berhasil ditambahkan!")
 
 
 def lihat_kamar():
@@ -311,7 +334,8 @@ def lihat_kamar():
         "harga": "\033[1mHarga\033[0m",
         "status": "\033[1mStatus\033[0m",
         "penghuni": "\033[1mPenghuni\033[0m",
-        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m"
+        "tanggal_mulai": "\033[1mTanggal Mulai\033[0m",
+        "tagihan": "\033[1mTagihan (Rp)\033[0m"
     }
 
     pilihan = input("Lihat semua kamar atau berdasarkan filter? (semua/filter): ").lower()
@@ -374,12 +398,54 @@ def update_kamar(sll):
             # Simpan state lama ke stack sebelum data diubah (untuk Undo)
             history_stack.append([d.copy() for d in data])
             
-            penghuni_baru = input("Nama penghuni baru: ")
-            log_aktivitas.append(f"Update kamar {nomor_cari}: {temp.data['penghuni']} -> {penghuni_baru}")
+            print("""
+Pilih yang ingin diupdate:
+1. Status & Penghuni
+2. Tagihan
+3. Harga
+""")
+            pilih_update = input("Pilihan (1/2/3/4): ")
 
-            # 2. Ubah data langsung di dalam Node SLL
-            temp.data["penghuni"] = penghuni_baru
-            temp.data["status"] = "Terisi"
+            if pilih_update == "1":
+                # Status ditanya duluan, penghuni menyesuaikan
+                status_baru = input("Status baru (Terisi/Kosong): ").capitalize()
+                if status_baru.lower() == "kosong":
+                    log_aktivitas.append(f"Update kamar {nomor_cari}: status -> Kosong, penghuni '{temp.data['penghuni']}' dikosongkan")
+                    temp.data["status"] = "Kosong"
+                    temp.data["penghuni"] = ""
+                    temp.data["tanggal_mulai"] = ""
+                else:
+                    penghuni_baru = input("Nama penghuni baru: ")
+                    tanggal_mulai_baru = datetime.datetime.now().strftime("%Y-%m-%d ")
+                    log_aktivitas.append(f"Update kamar {nomor_cari}: status -> {status_baru}, penghuni {temp.data['penghuni']} -> {penghuni_baru}")
+                    temp.data["status"] = status_baru
+                    temp.data["penghuni"] = penghuni_baru
+                    temp.data["tanggal_mulai"] = tanggal_mulai_baru
+
+            elif pilih_update == "2":
+                while True:
+                    tagihan_baru = input("Tagihan pembayaran baru (Rp): ")
+                    if tagihan_baru.isdigit():
+                        break
+                    else:
+                        print(" Error: Tagihan harus berupa angka! Coba lagi.")
+                log_aktivitas.append(f"Update kamar {nomor_cari}: tagihan {temp.data.get('tagihan', '-')} -> {tagihan_baru}")
+                temp.data["tagihan"] = tagihan_baru
+
+            elif pilih_update == "3":
+                while True:
+                    harga_baru = input("Harga baru (Rp): ")
+                    if harga_baru.isdigit():
+                        break
+                    else:
+                        print(" Error: Harga harus berupa angka! Coba lagi.")
+                log_aktivitas.append(f"Update kamar {nomor_cari}: harga {temp.data.get('harga', '-')} -> {harga_baru}")
+                temp.data["harga"] = harga_baru
+
+            else:
+                print("Pilihan tidak valid! Update dibatalkan.")
+                history_stack.pop()  # Batalkan undo yang sudah disimpan
+                return
 
             # 3. Sinkronkan ke list global dan simpan ke CSV
             data = sll.to_list()
