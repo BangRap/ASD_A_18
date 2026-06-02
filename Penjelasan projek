@@ -18,4 +18,4 @@ CSV :
 *PEMBAGIAN TUGAS:*
 - Rafly = FILE HANDLING, STRUKTUR DATA
 - Fahri = CRUD
-- Aris = CRUD
+- Aris = CRUD, Stack(Undo), Struktur data (SSL), Validasi Nomor Unik untuk fitur tambah kamar (Anti-Duplicate)

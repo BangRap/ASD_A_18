@@ -4,137 +4,136 @@ import tabulate
 FILE_NAME = "kamar.csv"
 
 # ================= DATA GLOBAL =================
-data = []
-history_stack = []
-log_aktivitas= []
+data = []             # List utama untuk nampung data dari CSV (buat jembatan)
+history_stack = []   # Stack untuk menyimpan riwayat data sebelum perubahan, dipakai untuk fitur undo
+log_aktivitas= []    # List untuk menyimpan catatan aktivitas user selama program berjalan
+
 
 # ================= FILE HANDLING =================
 
 def load_data():
-    temp_data = [] # variabel lokal dulu
-    data = []
+    data = []   # Membuat list kosong untuk menampung data dari file CSV
 
-    try:
+    try: # Mencoba membuka file CSV
+        # Buka file CSV dengan mode read (r)
         with open(FILE_NAME, mode='r', newline='', encoding='utf-8') as file:
             reader = csv.DictReader(file)
-
-            for row in reader:
-                data.append(row)
-
-    except FileNotFoundError:
-        pass
-
-    return data
+            # Membaca isi CSV sebagai dictionary
+            
+            for row in reader:  # Melakukan looping untuk setiap baris data di CSV
+                data.append(row) # Menambahkan setiap baris data ke dalam list data
 
 
-def save_data(data):
-    with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:
-        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni"]
-        # Update hapus id dari fieldnames biar ga muncul di CSV
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    except FileNotFoundError:  # Jika file kamar.csv belum ada, program tidak crash
+        pass    # Program lanjut berjalan tanpa melakukan apa-apa
+
+    return data  # Mengembalikan data dari CSV ke program
 
 
-def import_csv(sll):
-    global data
+def save_data(data): # Fungsi untuk menyimpan data dari list ke file CSV
 
-    nama_file = input("Masukkan nama file CSV: ")
+    with open(FILE_NAME, mode='w', newline='', encoding='utf-8') as file:    # Membuka file kamar.csv dalam mode write/tulis, Jika file belum ada, maka akan dibuat otomatis, Jika sudah ada, isi lama akan ditimpa dengan data terbaru
+        fieldnames = ["nomor", "lantai", "harga", "status", "penghuni"] # Menentukan nama kolom yang akan dipakai di file CSV
+        writer = csv.DictWriter(file, fieldnames=fieldnames)  # Membuat writer CSV berbasis dictionary
+        writer.writeheader()  # menulis header kolom di baris pertama CSV
+        writer.writerows(data) # menulis seluruh data list kamar ke file CSV
+
+
+def import_csv(sll):   # Fungsi untuk mengimpor data dari file CSV lain
+
+    global data  # Menggunakan variabel data global agar data utama bisa diganti
+    nama_file = input("Masukkan nama file CSV: ")   # User memasukkan nama file CSV yang ingin diimpor
 
     try:
-        with open(nama_file, mode='r', newline='', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
-
-            data = []
+        with open(nama_file, mode='r', newline='', encoding='utf-8') as file: # Membuka file CSV yang dimasukkan user
+            reader = csv.DictReader(file)  # Membaca isi file sebagai dictionary
+            data = []  # Mengosongkan data lama sebelum diganti data baru
             for row in reader:
-                data.append(row)
+                data.append(row)  # Memasukkan setiap baris CSV ke list data
 
-        save_data(data)
-        sll.rebuild(data)
+        save_data(data)  # Menyimpan data hasil import ke file utama kamar.csv
+        sll.rebuild(data)  # Membangun ulang linked list berdasarkan data baru
 
         print("Import CSV berhasil!")
 
-    except FileNotFoundError:
-        print("File tidak ditemukan!")
+    except FileNotFoundError:   # Jika nama file tidak ditemukan
+        print("File tidak ditemukan!") # Cetak File tidak ditemukan!
 
 
 # ================= LINKED LIST =================
 
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
+class Node:  # Class Node adalah elemen dasar dari linked list
+    def __init__(self, data):     # Constructor yang dijalankan saat node dibuat
+        self.data = data      # Menyimpan data kamar di dalam node
+        self.next = None      # Menyimpan referensi ke node berikutnya, walnya None karena belum tersambung ke node lain
 
 
-class SingleLinkedList:
-    def __init__(self):
-        self.head = None
+class SingleLinkedList: # Class untuk membuat struktur data Single Linked List
+    def __init__(self): 
+        self.head = None  # Head adalah node pertama dalam linked list, awalnya None karena linked list masih kosong
 
-    def tambah_kamar(self, kamar):
-        new_node = Node(kamar)
-        if not self.head:
-            self.head = new_node
-            return
-        temp = self.head
-        while temp.next:
-            temp = temp.next
-        temp.next = new_node
+    def tambah_kamar(self, kamar):    # Method untuk menambahkan data kamar ke linked list
+        new_node = Node(kamar)        # Membuat node baru berisi data kamar
+        if not self.head:             # Jika linked list masih kosong
+            self.head = new_node      # Node baru langsung menjadi head
+            return                    # Keluar dari fungsi karena data sudah ditambahkan
+        temp = self.head              # Mulai penelusuran dari node pertama
+        while temp.next:              # Selama masih ada node berikutnya
+            temp = temp.next          # Geser temp ke node berikutnya
+        temp.next = new_node          # Setelah sampai node terakhir, sambungkan node baru di bagian akhir
 
-    def rebuild(self, data):
-        self.head = None
-        for kamar in data:
-            self.tambah_kamar(kamar)
+    def rebuild(self, data):    # Method untuk membangun ulang linked list dari list data
+        self.head = None   # Mengosongkan linked list terlebih dahulu
+        for kamar in data:  # Loop semua data kamar dari list
+            self.tambah_kamar(kamar)   # Masukkan satu per satu ke linked list
 
     # --- FITUR BARU: Konversi SLL ke List (Untuk Save ke CSV) ---
-    def to_list(self):
-        hasil_list = []
-        temp = self.head
-        while temp:
-            hasil_list.append(temp.data)
-            temp = temp.next
-        return hasil_list
+    def to_list(self):   # Method untuk mengubah linked list kembali menjadi list biasa
+        hasil_list = []   # List kosong untuk menampung hasil konversi
+        temp = self.head   # Mulai dari node pertama
+        while temp:   # Selama node masih ada
+            hasil_list.append(temp.data)   # Ambil data dari node lalu masukkan ke list
+            temp = temp.next   # Pindah ke node berikutnya
+        return hasil_list  # Mengembalikan hasil linked list dalam bentuk list
 
     # --- FITUR BARU: Hapus Node Asli SLL ---
-    def hapus_node_by_nomor(self, nomor_cari):
-        temp = self.head
-        prev = None
+    def hapus_node_by_nomor(self, nomor_cari):   # Method untuk menghapus node berdasarkan nomor kamar
+        temp = self.head # Mulai dari node pertama
+        prev = None  # prev digunakan untuk menyimpan node sebelumnya
 
-        # Jika yang dihapus adalah node pertama (head)
-        if temp is not None and temp.data["nomor"] == nomor_cari:
-            self.head = temp.next # Putus rantai head
-            return True
+        if temp is not None and temp.data["nomor"] == nomor_cari:   # Jika linked list tidak kosong dan node pertama adalah data yang dicari
+            self.head = temp.next  # Head dipindahkan ke node berikutnya, sehingga node pertama terhapus
+            return True  # Mengembalikan True karena data berhasil dihapus
 
         # Cari node di tengah/akhir
-        while temp is not None and temp.data["nomor"] != nomor_cari:
-            prev = temp
-            temp = temp.next
+        while temp is not None and temp.data["nomor"] != nomor_cari:  # Selama node belum habis dan nomor kamar belum ditemukan
+            prev = temp  # Simpan node sekarang sebagai node sebelumnya
+            temp = temp.next # Geser ke node berikutnya
 
-# Jika ketemu, putus rantainya dari node sebelumnya
-        if temp is not None:
-            prev.next = temp.next
-            return True
+        if temp is not None:  # Jika data ditemukan
+            prev.next = temp.next  # Node sebelumnya disambungkan ke node setelah data yang dihapus
+            return True   # Mengembalikan True karena data berhasil dihapus
             
-        return False # Jika tidak ketemu
+        return False # Jika tidak ketemu, kembalikan False
 
     # --- FITUR BARU: BUBBLE SORT PADA LINKED LIST ---
-    def urutkan_kamar(self):
-        if not self.head or not self.head.next:
-            return # SLL kosong atau cuma 1 data, gak perlu disort
+    def urutkan_kamar(self):  # Method untuk mengurutkan kamar memakai Bubble Sort pada linked list
+        if not self.head or not self.head.next: # Jika linked list kosong atau cuma punya satu node
+            return # Tidak perlu sorting
 
-        diurutkan = True
-        while diurutkan:
-            diurutkan = False
-            temp = self.head
+        diurutkan = True # Variabel penanda apakah masih ada pertukaran data
+        while diurutkan:  # Selama masih ada data yang ditukar
+            diurutkan = False  # Dianggap sudah urut dulu
+            temp = self.head   # Mulai pengecekan dari node pertama
             
             # Telusuri SLL sampai node sebelum terakhir
-            while temp.next is not None:
-                # Ubah nomor kamar ke integer saat membandingkan agar urutannya matematis (misal: 2 sebelum 10)
-                if int(temp.data["nomor"]) > int(temp.next.data["nomor"]):
-                    # Tukar ISI DATA antar node jika node depan lebih besar dari node belakang
-                    temp.data, temp.next.data = temp.next.data, temp.data
-                    diurutkan = True
+            while temp.next is not None:    # Selama masih ada node setelah temp
+
+                if int(temp.data["nomor"]) > int(temp.next.data["nomor"]): # Jika nomor kamar node sekarang lebih besar dari node berikutnya
+                    temp.data, temp.next.data = temp.next.data, temp.data   # Tukar isi data antar node
+                    diurutkan = True   # Tandai bahwa masih ada pertukaran
                 
-                temp = temp.next # Geser pointer ke node berikutnya
+                temp = temp.next # Geser ke node berikutnya
         
 # ================= NEW FITUR (SEARCH & HISTORY) ====================
 
@@ -436,5 +435,5 @@ def menu():
 
 
 # ================= RUN =================
-if __name__ == "__main__":
-    menu()
+if __name__ == "__main__":   # Mengecek apakah file ini dijalankan langsung
+    menu()   # Memanggil fungsi menu untuk menjalankan program
