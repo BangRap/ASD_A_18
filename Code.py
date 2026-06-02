@@ -144,16 +144,16 @@ def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
     hasil = []
     temp = sll.head # Mulai penelusuran dari Kepala (Head) Linked List
     
-    # Looping ala Linked List
+    # Looping di linked list
     while temp is not None:
         if keyword in temp.data['nomor'].lower() or keyword in temp.data['penghuni'].lower():
             hasil.append(temp.data)
         temp = temp.next # Jalan ke node berikutnya
     
     print("\n=================== Hasil Pencarian ===================")
-    if not hasil:
+    if not hasil: #buat kalo pencariannya kosong
         print("Data yang kamu cari tidak ditemukan")
-    else:
+    else: #atur hasil pencariannya disini
         headers = {
             "nomor": "\033[1mNomor\033[0m",
             "lantai": "\033[1mLantai\033[0m",
@@ -161,14 +161,14 @@ def cari_kamar(sll): # <-- Selalu ada tambahan parameter 'sll' di sini
             "status": "\033[1mStatus\033[0m",
             "penghuni": "\033[1mPenghuni\033[0m"
         }
-        print(tabulate.tabulate(hasil, headers=headers, tablefmt="rounded_grid"))
+        print(tabulate.tabulate(hasil, headers=headers, tablefmt="rounded_grid")) #disini buat ngerapihin dan membuat jadi tabel
         
 #--- History ----
 def lihat_history():
     print("\n==== RIWAYAT AKTIVITAS ====")
-    if not log_aktivitas:
+    if not log_aktivitas: #buat Kalo aktivitasnya kosong
         print("Belum ada riwayat aktivitas")
-    else:
+    else: #Disini atur hasil aktivitas
         for i, log in enumerate(log_aktivitas, 1):
             print(f"{i}.{log}")
 
@@ -178,25 +178,23 @@ def lihat_history():
 def sort_kamar(sll):
     global data
     
-    if not sll.head:
-        print("\n❌ Data kosong, tidak ada yang bisa diurutkan!")
+    if not sll.head: #Buat ngecek linkedlistnya kosong apa engga
+        print("\n Data kosong, tidak ada yang bisa diurutkan!")
         return
 
     print("\nSedang mengurutkan kamar berdasarkan nomor...")
     
-    # 1. Jalankan algoritma Bubble Sort di dalam SLL
-    sll.urutkan_kamar()
+    sll.urutkan_kamar() # buat jalanin algoritma Bubble Sort di dalam SLL
     
-    # 2. Sinkronkan ke list global setelah diurutkan
-    data = sll.to_list()
+
+    data = sll.to_list() # Buat singkronin ke list global abis diurutin
     
-    # 3. Simpan urutan terbaru ke file CSV
-    save_data(data)
+    save_data(data) #buat nyimpen data ke csv
     log_aktivitas.append("Mengurutkan daftar kamar berdasarkan nomor")
     
-    print("✅ Kamar berhasil diurutkan dari nomor terkecil ke terbesar!")
+    print(" Kamar berhasil diurutkan dari nomor terkecil ke terbesar!")
     
-    # 4. Langsung tampilkan hasilnya ke user biar keren
+    # Hasil sorting
     headers = {
         "nomor": "\033[1mNomor\033[0m",
         "lantai": "\033[1mLantai\033[0m",
@@ -213,7 +211,7 @@ def tambah_kamar(sll):
     nomor = input("Nomor kamar: ")
     
 # ============= Validasi Nomer ===========
-    temp = sll.head # Mulai pengecekam dari head linked list
+    temp = sll.head # dicek dulu dari head linked list
     while temp is not None:
         if temp.data["nomor"] == nomor:
             print(f"\n Error: Kamar nomor {nomor} sudah ada! Silahkan input nomor kamar yang lain.")
@@ -246,7 +244,7 @@ def tambah_kamar(sll):
 def lihat_kamar():
     global data
 
-    if not data:
+    if not data: #Ngecek data kosong apa engga
         print("Data kosong")
         return
 
@@ -274,6 +272,7 @@ Filter berdasarkan:
 
         tampil = []
 
+        # Disini buat if else filter kamar
         if jenis_filter == "1":
             lantai = input("Masukkan lantai (1/2): ")
             tampil = [k for k in data if k["lantai"] == lantai]
@@ -306,8 +305,7 @@ def update_kamar(sll):
 
     nomor_cari = input("Masukkan Nomor kamar yang mau diupdate: ")
 
-    # 1. Mulai penelusuran dari Head SLL
-    temp = sll.head
+    temp = sll.head #ini dari head SLL dulu
     
     while temp is not None:
         if temp.data["nomor"] == nomor_cari:
