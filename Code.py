@@ -1,8 +1,6 @@
 import csv
 import tabulate
-import os
 import datetime
-import requests
 
 FILE_NAME = "kamar.csv"
 
