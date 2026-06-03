@@ -402,7 +402,7 @@ Pilih yang ingin diupdate:
 2. Tagihan
 3. Harga
 """)
-            pilih_update = input("Pilihan (1/2/3/4): ")
+            pilih_update = input("Pilihan (1/2/3): ")
 
             if pilih_update == "1":
                 # Status ditanya duluan, penghuni menyesuaikan
