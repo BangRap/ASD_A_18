@@ -47,29 +47,6 @@ def save_data(data):
         writer.writerows(data) # menulis seluruh data list kamar ke file CSV
 
 
-def import_csv(sll): 
-    '''
-    Ini fungsi buat import csv
-    '''
-
-    global data  # Menggunakan variabel data global agar data utama bisa diganti
-    nama_file = input("Masukkan nama file CSV: ")   # User memasukkan nama file CSV yang ingin diimpor
-
-    try:
-        with open(nama_file, mode='r', newline='', encoding='utf-8') as file: # Membuka file CSV yang dimasukkan user
-            reader = csv.DictReader(file)  # Membaca isi file sebagai dictionary
-            data = []  # Mengosongkan data lama sebelum diganti data baru
-            for row in reader:
-                data.append(row)  # Memasukkan setiap baris CSV ke list data
-
-        save_data(data)  # Menyimpan data hasil import ke file utama kamar.csv
-        sll.rebuild(data)  # Membangun ulang linked list berdasarkan data baru
-
-        print("Import CSV berhasil!")
-
-    except FileNotFoundError:   # Jika nama file tidak ditemukan
-        print("File tidak ditemukan!") # Cetak File tidak ditemukan!
-
 
 # ================= LINKED LIST =================
 
@@ -527,12 +504,12 @@ def menu():
 ===== MENU APLIKASI =====
 1. Tambah Kamar
 2. Lihat Semua Kamar
-3. Cari Kamar (No/Penghuni)
-4. Update Kamar (Nomor)
-5. Hapus Kamar (Nomor)
+3. Cari Kamar 
+4. Update Kamar
+5. Hapus Kamar
 6. Lihat Riwayat
 7. Undo
-8. Urutkan Kamar (Bubble Sort)
+8. Urutkan Kamar
 0. Keluar
 """)
 
