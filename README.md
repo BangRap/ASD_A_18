@@ -24,6 +24,11 @@ Algoritma yang Dipakai:
 - Sorting (Bubble Sort)
 - Traversal Linked List
 
+Library yang digunakan:
+1. csv
+2. tabulate
+3. datetime
+
 File penyimpanan data:
 1. kamar.csv
 
