@@ -1,4 +1,4 @@
-Manajemen Kost-kostan (KELOMPOK18)
+Manajemen Kost-kostan (KELOMPOK18: MBG)
 
 Repository projek algoritma & struktur data dari kelompok 18 dengan tema Manajemen Kost-kostan. Program dapat mulai dijalankan dengan membuka file utama bernama "code.py".
 
