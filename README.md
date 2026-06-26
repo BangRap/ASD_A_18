@@ -12,7 +12,7 @@ Pembagian Tugas:
 2. Lumaris Satya Dwinanto --> Membuat CRU, searching, sorting
 3. Fahrizal Azis --> Format data, membuat undo dan history
 
-Link Video Code PBL:
+Link Video Code PBL: https://youtu.be/f0cuwaoe1Uw
 
 Struktur Data yang Dipakai:
 - Single linked List
